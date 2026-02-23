@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { usePlayer, generateRoomCode } from '../hooks/usePlayer'
 import { createRoom, joinRoom } from '../lib/room'
 import NicknameInput from '../components/NicknameInput'
@@ -58,6 +58,12 @@ export default function TopPage() {
         <div className="glass rounded-[28px] p-6 text-center space-y-2">
           <h1 className="text-3xl font-bold text-pink-600">ときめきピック</h1>
           <p className="text-sm text-gray-500">ふたりの「やりたい」を見つけよう</p>
+          <Link
+            to="/rules"
+            className="inline-block mt-1 pill-liquid rounded-full px-4 py-1.5 text-xs font-medium text-pink-500 transition-all active:scale-95"
+          >
+            あそびかた →
+          </Link>
         </div>
 
         {/* Nickname */}

@@ -3,6 +3,7 @@ import TopPage from './pages/TopPage'
 import WaitingRoom from './pages/WaitingRoom'
 import GamePage from './pages/GamePage'
 import ResultPage from './pages/ResultPage'
+import RulesPage from './pages/RulesPage'
 import LiquidGlassFilter from './components/LiquidGlassFilter'
 
 export default function App() {
@@ -12,6 +13,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<TopPage />} />
+          <Route path="/rules" element={<RulesPage />} />
           <Route path="/room/:code" element={<WaitingRoom />} />
           <Route path="/room/:code/game" element={<GamePage />} />
           <Route path="/room/:code/result" element={<ResultPage />} />
