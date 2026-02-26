@@ -1,5 +1,5 @@
 import { CARDS } from '../data/cards'
-import type { GameState } from '../types'
+import type { GameState, JankenHand } from '../types'
 
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]
@@ -12,10 +12,10 @@ export function shuffleArray<T>(array: T[]): T[] {
 
 export function dealCards(): { a: number[]; b: number[] } {
   const shuffled = shuffleArray(CARDS)
-  const selected = shuffled.slice(0, 24)
+  const selected = shuffled.slice(0, 40)
   return {
-    a: selected.slice(0, 12).map((c) => c.id),
-    b: selected.slice(12, 24).map((c) => c.id),
+    a: selected.slice(0, 20).map((c) => c.id),
+    b: selected.slice(20, 40).map((c) => c.id),
   }
 }
 
@@ -27,8 +27,19 @@ export function createInitialGameState(): GameState {
     selections: { a: null, b: null },
     final_picks: { a: null, b: null },
     votes: { a: null, b: null },
+    janken: { a: null, b: null },
     decided_card: null,
   }
+}
+
+export function resolveJanken(a: JankenHand, b: JankenHand): 'a' | 'b' | 'draw' {
+  if (a === b) return 'draw'
+  if (
+    (a === 'rock' && b === 'scissors') ||
+    (a === 'scissors' && b === 'paper') ||
+    (a === 'paper' && b === 'rock')
+  ) return 'a'
+  return 'b'
 }
 
 export function getCardById(id: number) {
@@ -40,7 +51,7 @@ export function determineFinalCard(
   pickB: number,
   voteA: number | null,
   voteB: number | null,
-): number {
+): number | null {
   // Same card picked by both
   if (pickA === pickB) return pickA
 
@@ -48,8 +59,8 @@ export function determineFinalCard(
   if (voteA !== null && voteB !== null) {
     // Votes match
     if (voteA === voteB) return voteA
-    // Votes split — random
-    return Math.random() < 0.5 ? pickA : pickB
+    // Votes split — defer to janken
+    return null
   }
 
   // Fallback (shouldn't happen)

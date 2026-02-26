@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { broadcast } from '../lib/realtime'
-import { createInitialGameState, getCardById, determineFinalCard } from '../lib/gameLogic'
-import type { GameState, GameRound } from '../types'
+import { createInitialGameState, getCardById, determineFinalCard, resolveJanken } from '../lib/gameLogic'
+import type { GameState, GameRound, JankenHand } from '../types'
 
 type PlayerRole = 'a' | 'b'
 
@@ -112,6 +112,20 @@ export function useGame(
           })
         }
       })
+      .on('broadcast', { event: 'janken' }, ({ payload }) => {
+        if (payload.from !== myRoleRef.current) {
+          setGameState((prev) => {
+            if (!prev) return prev
+            return {
+              ...prev,
+              janken: {
+                ...prev.janken,
+                [payload.from as PlayerRole]: payload.hand as JankenHand,
+              },
+            }
+          })
+        }
+      })
       .on('broadcast', { event: 'decided' }, ({ payload }) => {
         setGameState((prev) => {
           if (!prev) return prev
@@ -215,6 +229,56 @@ export function useGame(
     [channel, gameState, myRole],
   )
 
+  // Submit janken hand
+  const submitJanken = useCallback(
+    async (hand: JankenHand) => {
+      if (!channel || !gameState) return
+
+      setGameState((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          janken: {
+            ...prev.janken,
+            [myRole]: hand,
+          },
+        }
+      })
+
+      await broadcast(channel, 'janken', {
+        from: myRole,
+        hand,
+      })
+    },
+    [channel, gameState, myRole],
+  )
+
+  // Check if both janken hands are in
+  useEffect(() => {
+    if (!gameState || !channel) return
+    if (gameState.round !== 'janken') return
+    if (gameState.janken.a === null || gameState.janken.b === null) return
+
+    const result = resolveJanken(gameState.janken.a, gameState.janken.b)
+
+    if (result === 'draw') {
+      // Aiko — reset after a brief pause
+      const timer = setTimeout(() => {
+        setGameState((prev) => {
+          if (!prev) return prev
+          return { ...prev, janken: { a: null, b: null } }
+        })
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+
+    // Winner decided — use winner's vote card
+    if (isHost) {
+      const winnerCard = gameState.votes[result]!
+      broadcast(channel, 'decided', { card_id: winnerCard })
+    }
+  }, [gameState?.janken.a, gameState?.janken.b, gameState?.round, channel, isHost])
+
   // Check if both final picks are done and determine next phase
   useEffect(() => {
     if (!gameState || !channel) return
@@ -236,7 +300,7 @@ export function useGame(
 
   // Check if both votes are in
   useEffect(() => {
-    if (!gameState || !channel || !isHost) return
+    if (!gameState || !channel) return
     if (gameState.round !== 'vote') return
     if (gameState.votes.a === null || gameState.votes.b === null) return
     if (gameState.decided_card !== null) return
@@ -247,7 +311,19 @@ export function useGame(
       gameState.votes.a,
       gameState.votes.b,
     )
-    broadcast(channel, 'decided', { card_id: decided })
+
+    if (decided !== null) {
+      // Votes matched
+      if (isHost) {
+        broadcast(channel, 'decided', { card_id: decided })
+      }
+    } else {
+      // Votes split → janken phase
+      setGameState((prev) => {
+        if (!prev || prev.round === 'janken') return prev
+        return { ...prev, round: 'janken' as GameRound, janken: { a: null, b: null } }
+      })
+    }
   }, [gameState?.votes.a, gameState?.votes.b, gameState?.round, gameState?.decided_card, channel, isHost])
 
   const myHand = gameState ? gameState.hands[myRole] : []
@@ -263,6 +339,7 @@ export function useGame(
     submitRound1,
     submitRound2,
     submitVote,
+    submitJanken,
     getCardById,
   }
 }

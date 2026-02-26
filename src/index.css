@@ -186,3 +186,329 @@ body {
     background-position: 30% 20%, 70% 40%, 40% 60%, 0% 0%;
   }
 }
+
+/* ─── Card selection animations ─── */
+
+/* 0. Card scatter in: cards drop onto the table like dealing */
+@keyframes card-scatter-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+    filter: blur(2px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.03);
+    filter: blur(0);
+  }
+  80% {
+    transform: translateY(-2px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.card-scatter-in {
+  animation: card-scatter-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* 1. Enhanced card-pop-in: overshoot bounce entrance */
+@keyframes card-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.12);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-card-pop-in {
+  animation: card-pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 2. Card wiggle: playful spring wiggle + lift on selection */
+@keyframes card-wiggle {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  20% {
+    transform: translateY(-8px) rotate(-2deg) scale(1.04);
+  }
+  40% {
+    transform: translateY(-6px) rotate(2deg) scale(1.03);
+  }
+  60% {
+    transform: translateY(-7px) rotate(-0.5deg) scale(1.035);
+  }
+  80% {
+    transform: translateY(-6px) rotate(0.3deg) scale(1.03);
+  }
+  100% {
+    transform: translateY(-6px) rotate(0deg) scale(1.03);
+  }
+}
+
+/* 3. Glow pulse: gentle pink glow for selected cards */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08),
+                0 0 12px rgba(249, 168, 212, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08),
+                0 0 20px rgba(244, 114, 182, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+}
+
+.card-selected {
+  animation: card-wiggle 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             glow-pulse 2s ease-in-out 0.45s infinite;
+}
+
+/* 4. Shimmer: diagonal light sweep across card */
+@keyframes shimmer {
+  0% {
+    background-position: -150% -150%;
+  }
+  100% {
+    background-position: 250% 250%;
+  }
+}
+
+.card-shimmer {
+  position: relative;
+}
+
+.card-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 70%
+  );
+  background-size: 200% 200%;
+  animation: shimmer 0.8s ease-in-out forwards;
+  pointer-events: none;
+}
+
+/* 5. Confetti burst: pure CSS particle explosion */
+@keyframes confetti-burst {
+  0% {
+    opacity: 1;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.celebrate {
+  position: relative;
+}
+
+.celebrate::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  transform-origin: center;
+  pointer-events: none;
+  animation: confetti-burst 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow:
+    /* ring 1 — close dots */
+    -12px -18px 0 0 #f472b6,
+     14px -16px 0 0 #a78bfa,
+    -18px  6px 0 0 #38bdf8,
+     18px  8px 0 0 #fb923c,
+      0px -20px 0 0 #facc15,
+    /* ring 2 — further dots */
+    -24px -10px 0 0.5px #34d399,
+     26px -4px  0 0.5px #f472b6,
+    -8px   24px 0 0.5px #a78bfa,
+     10px  22px 0 0.5px #38bdf8,
+    /* ring 3 — farthest dots */
+     30px  14px 0 0 #facc15,
+    -28px  16px 0 0 #fb923c,
+    -4px  -30px 0 0 #34d399,
+     20px -26px 0 0 #f472b6;
+}
+
+/* 6. Fan card in: hand tray mini-card entry from below */
+@keyframes fan-card-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fan-card-in {
+  animation: fan-card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Staggered delays for hand tray cards */
+.fan-card-in:nth-child(1) { animation-delay: 0s; }
+.fan-card-in:nth-child(2) { animation-delay: 0.04s; }
+.fan-card-in:nth-child(3) { animation-delay: 0.08s; }
+.fan-card-in:nth-child(4) { animation-delay: 0.12s; }
+.fan-card-in:nth-child(5) { animation-delay: 0.16s; }
+.fan-card-in:nth-child(6) { animation-delay: 0.20s; }
+.fan-card-in:nth-child(7) { animation-delay: 0.24s; }
+.fan-card-in:nth-child(8) { animation-delay: 0.28s; }
+.fan-card-in:nth-child(9) { animation-delay: 0.32s; }
+.fan-card-in:nth-child(10) { animation-delay: 0.36s; }
+
+/* 7. Celebrate bounce: satisfying button bounce */
+@keyframes celebrate-bounce {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-6px);
+  }
+  60% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.celebrate-bounce {
+  animation: celebrate-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Hide scrollbar for hand tray */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Janken animations ─── */
+@keyframes janken-shake {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-6px) rotate(-4deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-6px) rotate(4deg); }
+}
+
+.janken-shake {
+  animation: janken-shake 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+@keyframes janken-btn-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.janken-btn-in {
+  animation: janken-btn-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.janken-btn-in:nth-child(1) { animation-delay: 0.1s; }
+.janken-btn-in:nth-child(2) { animation-delay: 0.2s; }
+.janken-btn-in:nth-child(3) { animation-delay: 0.3s; }
+
+/* ─── Canvas viewport ─── */
+.canvas-viewport {
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Vignette overlays */
+.canvas-vignette {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.canvas-vignette-top {
+  top: 0; left: 0; right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(253, 242, 248, 0.85) 0%, transparent 100%);
+}
+
+.canvas-vignette-bottom {
+  bottom: 0; left: 0; right: 0;
+  height: 40px;
+  background: linear-gradient(to top, rgba(253, 242, 248, 0.85) 0%, transparent 100%);
+}
+
+.canvas-vignette-left {
+  top: 0; bottom: 0; left: 0;
+  width: 24px;
+  background: linear-gradient(to right, rgba(253, 242, 248, 0.85) 0%, transparent 100%);
+}
+
+.canvas-vignette-right {
+  top: 0; bottom: 0; right: 0;
+  width: 24px;
+  background: linear-gradient(to left, rgba(253, 242, 248, 0.85) 0%, transparent 100%);
+}
+
+/* Pan hint */
+.pan-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  animation: pan-hint-fade 3.5s ease-in-out forwards;
+}
+
+@keyframes pan-hint-fade {
+  0%, 60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
